@@ -73,6 +73,13 @@ body {
   cursor: pointer;
   font-weight: 800;
   clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.icon-cart {
+  flex-shrink: 0;
 }
 
 /* Hero */
