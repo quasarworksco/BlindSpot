@@ -1,1 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlindSpot | Gorras & Gafas Deportivas</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
+<header class="navbar">
+  <div class="container nav-content">
+    <a href="#inicio" class="logo">BLIND<span>SPOT</span></a>
+    <nav class="nav-links">
+      <a href="#inicio">Inicio</a>
+      <a href="#productos">Productos</a>
+      <a href="#nosotros">Nosotros</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <button class="cart-btn" id="cartBtn">
+      🛒 <span id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<section class="hero" id="inicio">
+  <div class="container hero-content">
+    <h1>Estilo y rendimiento <span>en cada detalle</span></h1>
+    <p>Gorras y gafas deportivas diseñadas para quienes no se detienen.</p>
+    <a href="#productos" class="btn-primary">Ver colección</a>
+  </div>
+</section>
+
+<section class="filters" id="productos">
+  <div class="container">
+    <h2>Nuestra colección</h2>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="all">Todo</button>
+      <button class="filter-btn" data-filter="gorras">Gorras</button>
+      <button class="filter-btn" data-filter="gafas">Gafas</button>
+    </div>
+    <div class="products-grid" id="productsGrid"></div>
+  </div>
+</section>
+
+<section class="about" id="nosotros">
+  <div class="container about-content">
+    <h2>Sobre BlindSpot</h2>
+    <p>Somos una tienda especializada en accesorios deportivos. Combinamos diseño moderno, materiales resistentes y comodidad para acompañarte en cada entrenamiento, partido o aventura al aire libre.</p>
+  </div>
+</section>
+
+<section class="contact" id="contacto">
+  <div class="container">
+    <h2>Contáctanos</h2>
+    <form class="contact-form" id="contactForm">
+      <input type="text" placeholder="Nombre" required>
+      <input type="email" placeholder="Correo electrónico" required>
+      <textarea placeholder="Mensaje" rows="4" required></textarea>
+      <button type="submit" class="btn-primary">Enviar</button>
+    </form>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p>&copy; 2026 BlindSpot. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<div class="cart-overlay" id="cartOverlay">
+  <div class="cart-panel">
+    <div class="cart-header">
+      <h3>Tu carrito</h3>
+      <button id="closeCart">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <p>Total: <span id="cartTotal">$0</span></p>
+      <button class="btn-primary" id="checkoutBtn">Finalizar compra</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
