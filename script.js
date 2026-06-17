@@ -1,12 +1,12 @@
 const products = [
-  { id: 1, name: 'Gorra Pro Runner', category: 'gorras', price: 25, icon: '🧢' },
-  { id: 2, name: 'Gorra Trail Black', category: 'gorras', price: 28, icon: '🧢' },
-  { id: 3, name: 'Gorra Sky Blue', category: 'gorras', price: 22, icon: '🧢' },
-  { id: 4, name: 'Gorra Urban Sport', category: 'gorras', price: 24, icon: '🧢' },
-  { id: 5, name: 'Gafas Speed Vision', category: 'gafas', price: 45, icon: '🕶️' },
-  { id: 6, name: 'Gafas Aero Black', category: 'gafas', price: 50, icon: '🕶️' },
-  { id: 7, name: 'Gafas Ice Blue', category: 'gafas', price: 48, icon: '🕶️' },
-  { id: 8, name: 'Gafas Trail Pro', category: 'gafas', price: 55, icon: '🕶️' },
+  { id: 1, name: 'Gorra Pro Runner', category: 'gorras', price: 25, img: 'https://images.unsplash.com/photo-1521369909029-2afed882baee?w=400&q=80' },
+  { id: 2, name: 'Gorra Trail Black', category: 'gorras', price: 28, img: 'https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=400&q=80' },
+  { id: 3, name: 'Gorra Sky Blue', category: 'gorras', price: 22, img: 'https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=400&q=80' },
+  { id: 4, name: 'Gorra Urban Sport', category: 'gorras', price: 24, img: 'https://images.unsplash.com/photo-1620231150904-aa56eba6b9c1?w=400&q=80' },
+  { id: 5, name: 'Gafas Speed Vision', category: 'gafas', price: 45, img: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=80' },
+  { id: 6, name: 'Gafas Aero Black', category: 'gafas', price: 50, img: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=80' },
+  { id: 7, name: 'Gafas Ice Blue', category: 'gafas', price: 48, img: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=80' },
+  { id: 8, name: 'Gafas Trail Pro', category: 'gafas', price: 55, img: 'https://images.unsplash.com/photo-1577803645773-f96470509666?w=400&q=80' },
 ];
 
 let cart = [];
@@ -20,7 +20,18 @@ const cartItemsEl = document.getElementById('cartItems');
 const cartCountEl = document.getElementById('cartCount');
 const cartTotalEl = document.getElementById('cartTotal');
 const checkoutBtn = document.getElementById('checkoutBtn');
+const checkoutOverlay = document.getElementById('checkoutOverlay');
+const closeCheckout = document.getElementById('closeCheckout');
+const checkoutForm = document.getElementById('checkoutForm');
+const checkoutTotalEl = document.getElementById('checkoutTotal');
 const contactForm = document.getElementById('contactForm');
+const toastEl = document.getElementById('toast');
+
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 2200);
+}
 
 function renderProducts(filter = 'all') {
   productsGrid.innerHTML = '';
@@ -29,7 +40,9 @@ function renderProducts(filter = 'all') {
     const card = document.createElement('div');
     card.className = 'product-card';
     card.innerHTML = `
-      <div class="product-img">${p.icon}</div>
+      <div class="product-img" style="background-image:url('${p.img}')">
+        <span class="product-badge">${p.category === 'gorras' ? 'Gorra' : 'Gafas'}</span>
+      </div>
       <div class="product-info">
         <h3>${p.name}</h3>
         <p class="product-price">$${p.price}</p>
@@ -59,33 +72,56 @@ productsGrid.addEventListener('click', e => {
       cart.push({ ...product, qty: 1 });
     }
     updateCart();
+    showToast(`${product.name} añadido al carrito`);
   }
 });
+
+function cartTotal() {
+  return cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+}
 
 function updateCart() {
   cartCountEl.textContent = cart.reduce((sum, i) => sum + i.qty, 0);
   cartItemsEl.innerHTML = '';
-  let total = 0;
+  if (cart.length === 0) {
+    cartItemsEl.innerHTML = '<p style="text-align:center;color:#888;padding:2rem 0;">Tu carrito está vacío</p>';
+  }
   cart.forEach(item => {
-    total += item.price * item.qty;
     const div = document.createElement('div');
     div.className = 'cart-item';
     div.innerHTML = `
-      <span>${item.icon} ${item.name} x${item.qty}</span>
-      <span>$${item.price * item.qty}</span>
-      <button data-id="${item.id}">&times;</button>
+      <img src="${item.img}" alt="${item.name}">
+      <div class="cart-item-info">
+        <strong>${item.name}</strong>
+        <p>$${item.price} c/u</p>
+        <div class="qty-controls">
+          <button class="qty-dec" data-id="${item.id}">-</button>
+          <span>${item.qty}</span>
+          <button class="qty-inc" data-id="${item.id}">+</button>
+        </div>
+      </div>
+      <button class="remove-item" data-id="${item.id}">&times;</button>
     `;
     cartItemsEl.appendChild(div);
   });
+  const total = cartTotal();
   cartTotalEl.textContent = `$${total}`;
+  checkoutTotalEl.textContent = `$${total}`;
 }
 
 cartItemsEl.addEventListener('click', e => {
-  if (e.target.tagName === 'BUTTON') {
-    const id = parseInt(e.target.dataset.id);
-    cart = cart.filter(item => item.id !== id);
-    updateCart();
+  const id = parseInt(e.target.dataset.id);
+  if (!id) return;
+  const item = cart.find(i => i.id === id);
+  if (e.target.classList.contains('qty-inc')) {
+    item.qty++;
+  } else if (e.target.classList.contains('qty-dec')) {
+    item.qty--;
+    if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+  } else if (e.target.classList.contains('remove-item')) {
+    cart = cart.filter(i => i.id !== id);
   }
+  updateCart();
 });
 
 cartBtn.addEventListener('click', () => cartOverlay.classList.add('open'));
@@ -96,19 +132,32 @@ cartOverlay.addEventListener('click', e => {
 
 checkoutBtn.addEventListener('click', () => {
   if (cart.length === 0) {
-    alert('Tu carrito está vacío.');
+    showToast('Tu carrito está vacío');
     return;
   }
-  alert('¡Gracias por tu compra! Te contactaremos para coordinar el envío.');
+  cartOverlay.classList.remove('open');
+  checkoutOverlay.classList.add('open');
+});
+
+closeCheckout.addEventListener('click', () => checkoutOverlay.classList.remove('open'));
+checkoutOverlay.addEventListener('click', e => {
+  if (e.target === checkoutOverlay) checkoutOverlay.classList.remove('open');
+});
+
+checkoutForm.addEventListener('submit', e => {
+  e.preventDefault();
+  showToast('¡Pedido confirmado! Te enviaremos un correo con el seguimiento.');
   cart = [];
   updateCart();
-  cartOverlay.classList.remove('open');
+  checkoutForm.reset();
+  checkoutOverlay.classList.remove('open');
 });
 
 contactForm.addEventListener('submit', e => {
   e.preventDefault();
-  alert('Mensaje enviado. ¡Gracias por contactarnos!');
+  showToast('Mensaje enviado. ¡Gracias por contactarnos!');
   contactForm.reset();
 });
 
 renderProducts();
+updateCart();

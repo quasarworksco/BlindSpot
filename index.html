@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BlindSpot | Gorras & Gafas Deportivas</title>
+<link rel="preconnect" href="https://images.unsplash.com">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,6 +15,7 @@
     <nav class="nav-links">
       <a href="#inicio">Inicio</a>
       <a href="#productos">Productos</a>
+      <a href="#galeria">Galería</a>
       <a href="#nosotros">Nosotros</a>
       <a href="#contacto">Contacto</a>
     </nav>
@@ -24,10 +26,21 @@
 </header>
 
 <section class="hero" id="inicio">
+  <div class="hero-bg"></div>
   <div class="container hero-content">
-    <h1>Estilo y rendimiento <span>en cada detalle</span></h1>
+    <span class="hero-tag">RENDIMIENTO · ESTILO · ACTITUD</span>
+    <h1>JUEGA SIN <span>LÍMITES</span></h1>
     <p>Gorras y gafas deportivas diseñadas para quienes no se detienen.</p>
     <a href="#productos" class="btn-primary">Ver colección</a>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="container stats-grid">
+    <div><strong>+5,000</strong><span>Clientes activos</span></div>
+    <div><strong>+40</strong><span>Modelos disponibles</span></div>
+    <div><strong>24/7</strong><span>Soporte al cliente</span></div>
+    <div><strong>100%</strong><span>Protección UV</span></div>
   </div>
 </section>
 
@@ -40,6 +53,20 @@
       <button class="filter-btn" data-filter="gafas">Gafas</button>
     </div>
     <div class="products-grid" id="productsGrid"></div>
+  </div>
+</section>
+
+<section class="gallery" id="galeria">
+  <div class="container">
+    <h2>Galería</h2>
+    <div class="gallery-grid">
+      <img src="https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=600&q=80" alt="Atleta con gorra deportiva">
+      <img src="https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=600&q=80" alt="Gafas de sol deportivas">
+      <img src="https://images.unsplash.com/photo-1577803645773-f96470509666?w=600&q=80" alt="Corredor usando gorra">
+      <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?w=600&q=80" alt="Ciclista con gafas deportivas">
+      <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=600&q=80" alt="Gorras deportivas en exhibición">
+      <img src="https://images.unsplash.com/photo-1508296695146-257a814070b4?w=600&q=80" alt="Atleta entrenando con gafas de sol">
+    </div>
   </div>
 </section>
 
@@ -81,6 +108,29 @@
     </div>
   </div>
 </div>
+
+<div class="checkout-overlay" id="checkoutOverlay">
+  <div class="checkout-panel">
+    <div class="cart-header">
+      <h3>Datos de envío y pago</h3>
+      <button id="closeCheckout">&times;</button>
+    </div>
+    <form id="checkoutForm" class="checkout-form">
+      <input type="text" placeholder="Nombre completo" required>
+      <input type="text" placeholder="Dirección de envío" required>
+      <input type="text" placeholder="Ciudad" required>
+      <input type="text" placeholder="Número de tarjeta" maxlength="19" required>
+      <div class="checkout-row">
+        <input type="text" placeholder="MM/AA" maxlength="5" required>
+        <input type="text" placeholder="CVV" maxlength="4" required>
+      </div>
+      <p class="checkout-total">Total a pagar: <span id="checkoutTotal">$0</span></p>
+      <button type="submit" class="btn-primary">Confirmar pedido</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script src="script.js"></script>
 </body>
