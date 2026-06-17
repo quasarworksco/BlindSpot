@@ -73,6 +73,9 @@ productsGrid.addEventListener('click', e => {
     }
     updateCart();
     showToast(`${product.name} añadido al carrito`);
+    cartBtn.classList.remove('bump');
+    void cartBtn.offsetWidth;
+    cartBtn.classList.add('bump');
   }
 });
 
@@ -161,3 +164,35 @@ contactForm.addEventListener('submit', e => {
 
 renderProducts();
 updateCart();
+
+function animateCount(el) {
+  const target = parseInt(el.dataset.count, 10);
+  const suffix = el.dataset.suffix || '';
+  const duration = 1200;
+  const start = performance.now();
+  function step(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const value = Math.floor(progress * target);
+    el.textContent = value.toLocaleString('es') + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+const revealTargets = document.querySelectorAll('.reveal, .product-card, [data-count], [data-text]');
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    el.classList.add('in-view');
+    if (el.dataset.count) animateCount(el);
+    if (el.dataset.text) el.textContent = el.dataset.text;
+    revealObserver.unobserve(el);
+  });
+}, { threshold: 0.15 });
+
+revealTargets.forEach(el => revealObserver.observe(el));
+
+new MutationObserver(() => {
+  document.querySelectorAll('.product-card').forEach(card => revealObserver.observe(card));
+}).observe(productsGrid, { childList: true });
