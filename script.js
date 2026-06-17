@@ -156,10 +156,19 @@ checkoutForm.addEventListener('submit', e => {
   checkoutOverlay.classList.remove('open');
 });
 
+const contactSubmit = document.getElementById('contactSubmit');
+
 contactForm.addEventListener('submit', e => {
   e.preventDefault();
   showToast('Mensaje enviado. ¡Gracias por contactarnos!');
+  const originalText = contactSubmit.textContent;
+  contactSubmit.textContent = '¡Enviado!';
+  contactSubmit.classList.add('sent');
   contactForm.reset();
+  setTimeout(() => {
+    contactSubmit.textContent = originalText;
+    contactSubmit.classList.remove('sent');
+  }, 2000);
 });
 
 renderProducts();
