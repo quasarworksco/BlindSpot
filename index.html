@@ -141,6 +141,7 @@
 <footer class="footer">
   <div class="container">
     <p>&copy; 2026 BlindSpot. Todos los derechos reservados.</p>
+    <a href="admin.html" class="admin-link">Administración</a>
   </div>
 </footer>
 
@@ -165,9 +166,9 @@
       <button id="closeCheckout">&times;</button>
     </div>
     <form id="checkoutForm" class="checkout-form">
-      <input type="text" placeholder="Nombre completo" required>
-      <input type="text" placeholder="Dirección de envío" required>
-      <input type="text" placeholder="Ciudad" required>
+      <input type="text" id="checkoutName" placeholder="Nombre completo" required>
+      <input type="text" id="checkoutAddress" placeholder="Dirección de envío" required>
+      <input type="text" id="checkoutCity" placeholder="Ciudad" required>
       <input type="text" placeholder="Número de tarjeta" maxlength="19" required>
       <div class="checkout-row">
         <input type="text" placeholder="MM/AA" maxlength="5" required>
@@ -181,6 +182,6 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="script.js"></script>
+<script type="module" src="script.js"></script>
 </body>
 </html>
