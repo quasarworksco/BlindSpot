@@ -1,9 +1,4 @@
-import { db, auth, uploadImageToCloudinary } from "./firebase-init.js";
-import {
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { db, uploadImageToCloudinary } from "./firebase-init.js";
 import {
   collection,
   addDoc,
@@ -28,40 +23,33 @@ function showToast(msg) {
   setTimeout(() => toastEl.classList.remove('show'), 2200);
 }
 
-loginForm.addEventListener('submit', async e => {
+// Acceso temporal mientras se configura el login real con Firebase Authentication.
+const TEMP_ADMIN_PASSWORD = '1234';
+
+function setLoggedIn(loggedIn) {
+  loginView.hidden = loggedIn;
+  dashboardView.hidden = !loggedIn;
+  logoutBtn.hidden = !loggedIn;
+}
+
+loginForm.addEventListener('submit', e => {
   e.preventDefault();
   loginError.textContent = '';
-  const email = document.getElementById('loginEmail').value;
   const password = document.getElementById('loginPassword').value;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (err) {
-    console.error(err);
-    if (err.code === 'auth/operation-not-allowed') {
-      loginError.textContent = 'El método de inicio de sesión por correo/contraseña no está habilitado en Firebase.';
-    } else if (err.code === 'auth/user-not-found') {
-      loginError.textContent = 'No existe un usuario admin con ese correo. Créalo en Firebase Authentication.';
-    } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
-      loginError.textContent = 'Correo o contraseña incorrectos.';
-    } else {
-      loginError.textContent = `Error al iniciar sesión (${err.code || err.message}).`;
-    }
-  }
-});
-
-logoutBtn.addEventListener('click', () => signOut(auth));
-
-onAuthStateChanged(auth, user => {
-  if (user) {
-    loginView.hidden = true;
-    dashboardView.hidden = false;
-    logoutBtn.hidden = false;
+  if (password === TEMP_ADMIN_PASSWORD) {
+    sessionStorage.setItem('blindspotAdmin', '1');
+    setLoggedIn(true);
   } else {
-    loginView.hidden = false;
-    dashboardView.hidden = true;
-    logoutBtn.hidden = true;
+    loginError.textContent = 'Contraseña incorrecta.';
   }
 });
+
+logoutBtn.addEventListener('click', () => {
+  sessionStorage.removeItem('blindspotAdmin');
+  setLoggedIn(false);
+});
+
+setLoggedIn(sessionStorage.getItem('blindspotAdmin') === '1');
 
 const tabs = document.querySelectorAll('.admin-tab');
 const productsPanel = document.getElementById('productsPanel');
