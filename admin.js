@@ -10,11 +10,6 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-const loginView = document.getElementById('loginView');
-const dashboardView = document.getElementById('dashboardView');
-const loginForm = document.getElementById('loginForm');
-const loginError = document.getElementById('loginError');
-const logoutBtn = document.getElementById('logoutBtn');
 const toastEl = document.getElementById('toast');
 
 function showToast(msg) {
@@ -22,34 +17,6 @@ function showToast(msg) {
   toastEl.classList.add('show');
   setTimeout(() => toastEl.classList.remove('show'), 2200);
 }
-
-// Acceso temporal mientras se configura el login real con Firebase Authentication.
-const TEMP_ADMIN_PASSWORD = '1234';
-
-function setLoggedIn(loggedIn) {
-  loginView.hidden = loggedIn;
-  dashboardView.hidden = !loggedIn;
-  logoutBtn.hidden = !loggedIn;
-}
-
-loginForm.addEventListener('submit', e => {
-  e.preventDefault();
-  loginError.textContent = '';
-  const password = document.getElementById('loginPassword').value;
-  if (password === TEMP_ADMIN_PASSWORD) {
-    sessionStorage.setItem('blindspotAdmin', '1');
-    setLoggedIn(true);
-  } else {
-    loginError.textContent = 'Contraseña incorrecta.';
-  }
-});
-
-logoutBtn.addEventListener('click', () => {
-  sessionStorage.removeItem('blindspotAdmin');
-  setLoggedIn(false);
-});
-
-setLoggedIn(sessionStorage.getItem('blindspotAdmin') === '1');
 
 const tabs = document.querySelectorAll('.admin-tab');
 const productsPanel = document.getElementById('productsPanel');

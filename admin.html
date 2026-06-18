@@ -81,6 +81,42 @@
 
 <div class="toast" id="toast"></div>
 
+<script>
+  // Acceso temporal mientras se configura el login real con Firebase Authentication.
+  (function () {
+    var TEMP_ADMIN_PASSWORD = '1234';
+    var loginView = document.getElementById('loginView');
+    var dashboardView = document.getElementById('dashboardView');
+    var loginForm = document.getElementById('loginForm');
+    var loginError = document.getElementById('loginError');
+    var logoutBtn = document.getElementById('logoutBtn');
+
+    function setLoggedIn(loggedIn) {
+      loginView.hidden = loggedIn;
+      dashboardView.hidden = !loggedIn;
+      logoutBtn.hidden = !loggedIn;
+    }
+
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      loginError.textContent = '';
+      var password = document.getElementById('loginPassword').value;
+      if (password === TEMP_ADMIN_PASSWORD) {
+        sessionStorage.setItem('blindspotAdmin', '1');
+        setLoggedIn(true);
+      } else {
+        loginError.textContent = 'Contraseña incorrecta.';
+      }
+    });
+
+    logoutBtn.addEventListener('click', function () {
+      sessionStorage.removeItem('blindspotAdmin');
+      setLoggedIn(false);
+    });
+
+    setLoggedIn(sessionStorage.getItem('blindspotAdmin') === '1');
+  })();
+</script>
 <script type="module" src="admin.js"></script>
 </body>
 </html>
