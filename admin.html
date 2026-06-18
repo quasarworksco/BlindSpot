@@ -12,17 +12,10 @@
 </head>
 <body class="admin-body">
 
-<header class="navbar">
-  <div class="container nav-content">
-    <a href="index.html" class="logo">BLIND<span>SPOT</span></a>
-    <span class="admin-title">Administración</span>
-    <button class="btn-primary admin-logout" id="logoutBtn" hidden>Salir</button>
-  </div>
-</header>
-
 <section class="admin-login" id="loginView">
-  <div class="container login-box">
-    <h2>Acceso de administrador</h2>
+  <div class="login-box">
+    <span class="login-logo">BLIND<span>SPOT</span></span>
+    <h2>Panel de administración</h2>
     <form id="loginForm">
       <div class="form-group">
         <input type="password" id="loginPassword" placeholder=" " required>
@@ -31,53 +24,85 @@
       <button type="submit" class="btn-primary">Iniciar sesión</button>
       <p class="login-error" id="loginError"></p>
     </form>
+    <a href="index.html" class="back-to-site">&larr; Volver a la tienda</a>
   </div>
 </section>
 
-<section class="admin-dashboard" id="dashboardView" hidden>
-  <div class="container">
-    <div class="admin-tabs">
-      <button class="admin-tab active" data-tab="products">Productos</button>
-      <button class="admin-tab" data-tab="sales">Ventas</button>
-    </div>
+<div class="admin-layout" id="dashboardView" hidden>
+  <aside class="admin-sidebar">
+    <a href="index.html" class="admin-sidebar-logo">BLIND<span>SPOT</span></a>
+    <nav class="admin-nav">
+      <button class="admin-nav-btn active" data-tab="products">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.82 0l4.6-4.6a2 2 0 0 0 0-2.82z"></path><circle cx="7" cy="8" r="1.5"></circle></svg>
+        Productos
+      </button>
+      <button class="admin-nav-btn" data-tab="sales">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M7 16l4-6 4 3 5-8"></path></svg>
+        Ventas
+      </button>
+    </nav>
+    <button class="admin-nav-logout" id="logoutBtn">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>
+      Salir
+    </button>
+  </aside>
 
-    <div class="admin-panel" id="productsPanel">
-      <h2>Cargar producto</h2>
-      <form id="productForm" class="product-form">
-        <div class="form-group">
-          <input type="text" id="prodName" placeholder=" " required>
-          <label for="prodName">Nombre</label>
-        </div>
-        <div class="form-row">
-          <select id="prodCategory" required>
-            <option value="gorras">Gorras</option>
-            <option value="gafas">Gafas</option>
-          </select>
-          <input type="number" id="prodPrice" placeholder="Precio" min="0" step="0.01" required>
-        </div>
-        <input type="file" id="prodImage" accept="image/*">
-        <img id="prodImagePreview" class="product-image-preview" hidden>
+  <main class="admin-main">
+    <header class="admin-topbar">
+      <h1 id="pageTitle">Productos</h1>
+    </header>
 
-        <div class="variations-builder">
-          <h3>Variaciones (talla / color)</h3>
-          <div id="variationsList"></div>
-          <button type="button" class="btn-secondary" id="addVariationBtn">+ Añadir variación</button>
-        </div>
+    <section class="admin-panel" id="productsPanel">
+      <div class="admin-card">
+        <h2>Cargar producto</h2>
+        <form id="productForm" class="product-form">
+          <div class="form-group">
+            <input type="text" id="prodName" placeholder=" " required>
+            <label for="prodName">Nombre</label>
+          </div>
+          <div class="form-row">
+            <select id="prodCategory" required>
+              <option value="gorras">Gorras</option>
+              <option value="gafas">Gafas</option>
+            </select>
+            <input type="number" id="prodPrice" placeholder="Precio" min="0" step="0.01" required>
+          </div>
 
-        <button type="submit" class="btn-primary" id="prodSubmitBtn">Guardar producto</button>
-      </form>
+          <label class="upload-zone" id="uploadZone" for="prodImage">
+            <input type="file" id="prodImage" accept="image/*" hidden>
+            <div class="upload-placeholder" id="uploadPlaceholder">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <p><strong>Haz click</strong> o arrastra una imagen aquí</p>
+              <span>PNG, JPG hasta 10MB</span>
+            </div>
+            <img id="prodImagePreview" class="upload-preview" hidden>
+          </label>
 
-      <h2>Productos cargados</h2>
-      <div class="admin-products-table" id="productsTable"></div>
-    </div>
+          <div class="variations-builder">
+            <h3>Variaciones (talla / color)</h3>
+            <div id="variationsList"></div>
+            <button type="button" class="btn-secondary" id="addVariationBtn">+ Añadir variación</button>
+          </div>
 
-    <div class="admin-panel" id="salesPanel" hidden>
-      <h2>Control de ventas</h2>
+          <button type="submit" class="btn-primary" id="prodSubmitBtn">Guardar producto</button>
+        </form>
+      </div>
+
+      <div class="admin-card">
+        <h2>Productos cargados</h2>
+        <div class="admin-products-table" id="productsTable"></div>
+      </div>
+    </section>
+
+    <section class="admin-panel" id="salesPanel" hidden>
       <div class="admin-stats" id="salesStats"></div>
-      <div class="admin-sales-table" id="salesTable"></div>
-    </div>
-  </div>
-</section>
+      <div class="admin-card">
+        <h2>Historial de ventas</h2>
+        <div class="admin-sales-table" id="salesTable"></div>
+      </div>
+    </section>
+  </main>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -94,7 +119,6 @@
     function setLoggedIn(loggedIn) {
       loginView.hidden = loggedIn;
       dashboardView.hidden = !loggedIn;
-      logoutBtn.hidden = !loggedIn;
     }
 
     loginForm.addEventListener('submit', function (e) {

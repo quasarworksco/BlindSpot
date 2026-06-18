@@ -18,15 +18,18 @@ function showToast(msg) {
   setTimeout(() => toastEl.classList.remove('show'), 2200);
 }
 
-const tabs = document.querySelectorAll('.admin-tab');
+const tabs = document.querySelectorAll('.admin-nav-btn');
 const productsPanel = document.getElementById('productsPanel');
 const salesPanel = document.getElementById('salesPanel');
+const pageTitle = document.getElementById('pageTitle');
+const tabTitles = { products: 'Productos', sales: 'Ventas' };
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     productsPanel.hidden = tab.dataset.tab !== 'products';
     salesPanel.hidden = tab.dataset.tab !== 'sales';
+    pageTitle.textContent = tabTitles[tab.dataset.tab];
   });
 });
 
@@ -55,14 +58,35 @@ addVariationRow();
 
 const prodImageInput = document.getElementById('prodImage');
 const prodImagePreview = document.getElementById('prodImagePreview');
-prodImageInput.addEventListener('change', () => {
-  const file = prodImageInput.files[0];
+const uploadZone = document.getElementById('uploadZone');
+const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+
+function setPreviewFile(file) {
   if (!file) {
     prodImagePreview.hidden = true;
+    uploadPlaceholder.hidden = false;
     return;
   }
   prodImagePreview.src = URL.createObjectURL(file);
   prodImagePreview.hidden = false;
+  uploadPlaceholder.hidden = true;
+}
+
+prodImageInput.addEventListener('change', () => setPreviewFile(prodImageInput.files[0]));
+
+uploadZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  uploadZone.classList.add('drag-over');
+});
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    prodImageInput.files = e.dataTransfer.files;
+    setPreviewFile(file);
+  }
 });
 
 const productForm = document.getElementById('productForm');
@@ -102,7 +126,7 @@ productForm.addEventListener('submit', async e => {
     productForm.reset();
     variationsList.innerHTML = '';
     addVariationRow();
-    prodImagePreview.hidden = true;
+    setPreviewFile(null);
   } catch (err) {
     console.error(err);
     showToast('Error al guardar el producto');
