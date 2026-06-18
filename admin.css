@@ -35,13 +35,19 @@
 #loginForm {
   display: flex;
   flex-direction: column;
-  gap: 1.4rem;
+  gap: 1.8rem;
+}
+
+#loginForm .form-group {
+  margin-bottom: 0.2rem;
 }
 
 #loginForm .form-group input {
   background: #f4f6f8;
   color: var(--black);
   border-bottom: 2px solid #ccc;
+  padding-top: 1.2rem;
+  padding-bottom: 0.8rem;
 }
 
 #loginForm .form-group input:focus {
@@ -54,7 +60,7 @@
 }
 
 #loginForm button {
-  margin-top: 0.5rem;
+  margin-top: 1rem;
   width: 100%;
 }
 
