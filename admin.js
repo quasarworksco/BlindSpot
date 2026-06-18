@@ -115,6 +115,10 @@ const productsTable = document.getElementById('productsTable');
 
 onSnapshot(collection(db, 'products'), snapshot => {
   productsTable.innerHTML = '';
+  if (snapshot.docs.length === 0) {
+    productsTable.innerHTML = '<p class="products-empty">Todavía no hay productos cargados.</p>';
+    return;
+  }
   snapshot.docs.forEach(docSnap => {
     const p = docSnap.data();
     const variationsText = (p.variations || [])
@@ -143,14 +147,21 @@ productsTable.addEventListener('click', async e => {
 });
 
 const salesTable = document.getElementById('salesTable');
-const salesSummary = document.getElementById('salesSummary');
+const salesStats = document.getElementById('salesStats');
 
 onSnapshot(query(collection(db, 'sales'), orderBy('createdAt', 'desc')), snapshot => {
   salesTable.innerHTML = '';
   let totalRevenue = 0;
+  let totalItems = 0;
+
+  if (snapshot.docs.length === 0) {
+    salesTable.innerHTML = '<p class="sales-empty">Todavía no se ha registrado ninguna venta.</p>';
+  }
+
   snapshot.docs.forEach(docSnap => {
     const sale = docSnap.data();
     totalRevenue += sale.total || 0;
+    totalItems += (sale.items || []).reduce((sum, i) => sum + (i.qty || 0), 0);
     const date = sale.createdAt?.toDate ? sale.createdAt.toDate().toLocaleString('es') : '';
     const itemsText = (sale.items || [])
       .map(i => `${i.qty}x ${i.name}${i.size || i.color ? ` (${[i.size, i.color].filter(Boolean).join(' / ')})` : ''}`)
@@ -167,5 +178,19 @@ onSnapshot(query(collection(db, 'sales'), orderBy('createdAt', 'desc')), snapsho
     `;
     salesTable.appendChild(row);
   });
-  salesSummary.textContent = `Total de ventas: ${snapshot.docs.length} · Ingresos totales: $${totalRevenue.toFixed(2)}`;
+
+  salesStats.innerHTML = `
+    <div class="admin-stat-card">
+      <span class="admin-stat-label">Ventas totales</span>
+      <span class="admin-stat-value">${snapshot.docs.length}</span>
+    </div>
+    <div class="admin-stat-card">
+      <span class="admin-stat-label">Ingresos totales</span>
+      <span class="admin-stat-value">$${totalRevenue.toFixed(2)}</span>
+    </div>
+    <div class="admin-stat-card">
+      <span class="admin-stat-label">Productos vendidos</span>
+      <span class="admin-stat-value">${totalItems}</span>
+    </div>
+  `;
 });
