@@ -1,14 +1,12 @@
-const products = [
-  { id: 1, name: 'Gorra Pro Runner', category: 'gorras', price: 25, img: 'https://images.unsplash.com/photo-1521369909029-2afed882baee?w=400&q=80' },
-  { id: 2, name: 'Gorra Trail Black', category: 'gorras', price: 28, img: 'https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=400&q=80' },
-  { id: 3, name: 'Gorra Sky Blue', category: 'gorras', price: 22, img: 'https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=400&q=80' },
-  { id: 4, name: 'Gorra Urban Sport', category: 'gorras', price: 24, img: 'https://images.unsplash.com/photo-1620231150904-aa56eba6b9c1?w=400&q=80' },
-  { id: 5, name: 'Gafas Speed Vision', category: 'gafas', price: 45, img: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=80' },
-  { id: 6, name: 'Gafas Aero Black', category: 'gafas', price: 50, img: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&q=80' },
-  { id: 7, name: 'Gafas Ice Blue', category: 'gafas', price: 48, img: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=80' },
-  { id: 8, name: 'Gafas Trail Pro', category: 'gafas', price: 55, img: 'https://images.unsplash.com/photo-1577803645773-f96470509666?w=400&q=80' },
-];
+import { db } from "./firebase-init.js";
+import {
+  collection,
+  onSnapshot,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
+let products = [];
 let cart = [];
 
 const productsGrid = document.getElementById('productsGrid');
@@ -26,6 +24,7 @@ const checkoutForm = document.getElementById('checkoutForm');
 const checkoutTotalEl = document.getElementById('checkoutTotal');
 const contactForm = document.getElementById('contactForm');
 const toastEl = document.getElementById('toast');
+let activeFilter = 'all';
 
 function showToast(msg) {
   toastEl.textContent = msg;
@@ -33,19 +32,36 @@ function showToast(msg) {
   setTimeout(() => toastEl.classList.remove('show'), 2200);
 }
 
-function renderProducts(filter = 'all') {
+function variationOptions(product) {
+  const variations = product.variations || [];
+  if (variations.length === 0) return '';
+  const sizes = [...new Set(variations.map(v => v.size).filter(Boolean))];
+  const colors = [...new Set(variations.map(v => v.color).filter(Boolean))];
+  let html = '';
+  if (sizes.length) {
+    html += `<select class="variation-size" data-id="${product.id}">${sizes.map(s => `<option value="${s}">${s}</option>`).join('')}</select>`;
+  }
+  if (colors.length) {
+    html += `<select class="variation-color" data-id="${product.id}">${colors.map(c => `<option value="${c}">${c}</option>`).join('')}</select>`;
+  }
+  return html;
+}
+
+function renderProducts(filter = activeFilter) {
+  activeFilter = filter;
   productsGrid.innerHTML = '';
   const list = filter === 'all' ? products : products.filter(p => p.category === filter);
   list.forEach(p => {
     const card = document.createElement('div');
     card.className = 'product-card';
     card.innerHTML = `
-      <div class="product-img" style="background-image:url('${p.img}')">
+      <div class="product-img" style="background-image:url('${p.imageUrl || p.img || ''}')">
         <span class="product-badge">${p.category === 'gorras' ? 'Gorra' : 'Gafas'}</span>
       </div>
       <div class="product-info">
         <h3>${p.name}</h3>
         <p class="product-price">$${p.price}</p>
+        <div class="product-variations">${variationOptions(p)}</div>
         <button class="add-to-cart" data-id="${p.id}">Añadir al carrito</button>
       </div>
     `;
@@ -63,13 +79,17 @@ filterButtons.forEach(btn => {
 
 productsGrid.addEventListener('click', e => {
   if (e.target.classList.contains('add-to-cart')) {
-    const id = parseInt(e.target.dataset.id);
+    const id = e.target.dataset.id;
     const product = products.find(p => p.id === id);
-    const existing = cart.find(item => item.id === id);
+    const card = e.target.closest('.product-card');
+    const size = card.querySelector('.variation-size')?.value || null;
+    const color = card.querySelector('.variation-color')?.value || null;
+    const key = `${id}-${size || ''}-${color || ''}`;
+    const existing = cart.find(item => item.key === key);
     if (existing) {
       existing.qty++;
     } else {
-      cart.push({ ...product, qty: 1 });
+      cart.push({ ...product, key, size, color, qty: 1 });
     }
     updateCart();
     showToast(`${product.name} añadido al carrito`);
@@ -90,20 +110,22 @@ function updateCart() {
     cartItemsEl.innerHTML = '<p style="text-align:center;color:#888;padding:2rem 0;">Tu carrito está vacío</p>';
   }
   cart.forEach(item => {
+    const variationText = [item.size, item.color].filter(Boolean).join(' / ');
     const div = document.createElement('div');
     div.className = 'cart-item';
     div.innerHTML = `
-      <img src="${item.img}" alt="${item.name}">
+      <img src="${item.imageUrl || item.img || ''}" alt="${item.name}">
       <div class="cart-item-info">
         <strong>${item.name}</strong>
+        ${variationText ? `<p class="cart-item-variation">${variationText}</p>` : ''}
         <p>$${item.price} c/u</p>
         <div class="qty-controls">
-          <button class="qty-dec" data-id="${item.id}">-</button>
+          <button class="qty-dec" data-key="${item.key}">-</button>
           <span>${item.qty}</span>
-          <button class="qty-inc" data-id="${item.id}">+</button>
+          <button class="qty-inc" data-key="${item.key}">+</button>
         </div>
       </div>
-      <button class="remove-item" data-id="${item.id}">&times;</button>
+      <button class="remove-item" data-key="${item.key}">&times;</button>
     `;
     cartItemsEl.appendChild(div);
   });
@@ -113,16 +135,16 @@ function updateCart() {
 }
 
 cartItemsEl.addEventListener('click', e => {
-  const id = parseInt(e.target.dataset.id);
-  if (!id) return;
-  const item = cart.find(i => i.id === id);
+  const key = e.target.dataset.key;
+  if (!key) return;
+  const item = cart.find(i => i.key === key);
   if (e.target.classList.contains('qty-inc')) {
     item.qty++;
   } else if (e.target.classList.contains('qty-dec')) {
     item.qty--;
-    if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+    if (item.qty <= 0) cart = cart.filter(i => i.key !== key);
   } else if (e.target.classList.contains('remove-item')) {
-    cart = cart.filter(i => i.id !== id);
+    cart = cart.filter(i => i.key !== key);
   }
   updateCart();
 });
@@ -147,8 +169,30 @@ checkoutOverlay.addEventListener('click', e => {
   if (e.target === checkoutOverlay) checkoutOverlay.classList.remove('open');
 });
 
-checkoutForm.addEventListener('submit', e => {
+checkoutForm.addEventListener('submit', async e => {
   e.preventDefault();
+  const total = cartTotal();
+  try {
+    await addDoc(collection(db, 'sales'), {
+      items: cart.map(i => ({
+        productId: i.id,
+        name: i.name,
+        price: i.price,
+        qty: i.qty,
+        size: i.size,
+        color: i.color
+      })),
+      total,
+      customer: {
+        name: document.getElementById('checkoutName').value,
+        address: document.getElementById('checkoutAddress').value,
+        city: document.getElementById('checkoutCity').value
+      },
+      createdAt: serverTimestamp()
+    });
+  } catch (err) {
+    console.error('Error al registrar la venta', err);
+  }
   showToast('¡Pedido confirmado! Te enviaremos un correo con el seguimiento.');
   cart = [];
   updateCart();
@@ -171,9 +215,6 @@ contactForm.addEventListener('submit', e => {
   }, 2000);
 });
 
-renderProducts();
-updateCart();
-
 function animateCount(el) {
   const target = parseInt(el.dataset.count, 10);
   const suffix = el.dataset.suffix || '';
@@ -188,7 +229,7 @@ function animateCount(el) {
   requestAnimationFrame(step);
 }
 
-const revealTargets = document.querySelectorAll('.reveal, .product-card, [data-count], [data-text]');
+const revealTargets = document.querySelectorAll('.reveal, [data-count], [data-text]');
 const revealObserver = new IntersectionObserver(entries => {
   entries.forEach(entry => {
     if (!entry.isIntersecting) return;
@@ -205,3 +246,10 @@ revealTargets.forEach(el => revealObserver.observe(el));
 new MutationObserver(() => {
   document.querySelectorAll('.product-card').forEach(card => revealObserver.observe(card));
 }).observe(productsGrid, { childList: true });
+
+onSnapshot(collection(db, 'products'), snapshot => {
+  products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  renderProducts(activeFilter);
+});
+
+updateCart();
