@@ -32,6 +32,32 @@
   margin-bottom: 1.5rem;
 }
 
+#loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+#loginForm .form-group input {
+  background: #f4f6f8;
+  color: var(--black);
+  border-bottom: 2px solid #ccc;
+}
+
+#loginForm .form-group input:focus {
+  border-color: var(--light-blue);
+}
+
+#loginForm .form-group input:focus ~ label,
+#loginForm .form-group input:not(:placeholder-shown) ~ label {
+  color: var(--light-blue);
+}
+
+#loginForm button {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
 .login-error {
   color: #e0395c;
   margin-top: 0.75rem;
