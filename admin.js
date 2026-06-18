@@ -36,7 +36,16 @@ loginForm.addEventListener('submit', async e => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (err) {
-    loginError.textContent = 'Correo o contraseña incorrectos.';
+    console.error(err);
+    if (err.code === 'auth/operation-not-allowed') {
+      loginError.textContent = 'El método de inicio de sesión por correo/contraseña no está habilitado en Firebase.';
+    } else if (err.code === 'auth/user-not-found') {
+      loginError.textContent = 'No existe un usuario admin con ese correo. Créalo en Firebase Authentication.';
+    } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+      loginError.textContent = 'Correo o contraseña incorrectos.';
+    } else {
+      loginError.textContent = `Error al iniciar sesión (${err.code || err.message}).`;
+    }
   }
 });
 
